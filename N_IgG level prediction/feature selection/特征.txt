@@ -1,0 +1,65 @@
+light
+N
+MSE: 1.2061749066796963
+RMSE: 1.0982599449491437
+MAE: 0.850231899642724
+MAPE: 1.5034440293924862
+R: 0.144929663857147
+
+Feature: 年龄, Importance: 292   Age
+Feature: 血_平均血红蛋白含量, Importance: 192
+Feature: 血_总胆固醇, Importance: 128
+Feature: 血_血小板计数, Importance: 126
+Feature: 血_平均RBC体积, Importance: 125
+Feature: 血_RBC分布宽度CV, Importance: 123
+Feature: 血_白细胞计数, Importance: 119
+Feature: 血_嗜酸细胞(#), Importance: 119
+Feature: 血_红细胞计数, Importance: 109
+Feature: 血_血小板压积, Importance: 107
+Feature: 血_γ-谷氨酰转肽酶, Importance: 106
+Feature: 血_RBC分布宽度SD, Importance: 100
+Feature: 血_eGFR(基于CKD-EPI方程), Importance: 96
+Feature: 血_钾, Importance: 95
+Feature: 血_氯, Importance: 84
+Feature: 血_碳酸氢根, Importance: 81
+Feature: 血_谷丙转氨酶, Importance: 81
+Feature: 血_肌酐, Importance: 80
+Feature: 血_碱性磷酸酶, Importance: 70
+Feature: 血_平均血红蛋白浓度, Importance: 66
+Feature: 血_总胆红素, Importance: 63
+Feature: 血_钠, Importance: 59
+Feature: 血_乳酸脱氢酶, Importance: 58
+Feature: 血_尿素, Importance: 58
+Feature: 血_尿酸, Importance: 56
+Feature: 血_大血小板比率, Importance: 55
+Feature: 血_单核细胞(%), Importance: 54
+Feature: 血_白/球比值, Importance: 52
+Feature: 血_嗜酸细胞(%), Importance: 47
+Feature: 血_谷草转氨酶, Importance: 46
+Feature: 血_单核细胞(#), Importance: 45
+Feature: 糖尿病(0=无，1=有), Importance: 44
+Feature: 血_红细胞压积, Importance: 40
+Feature: 血_白蛋白, Importance: 39
+Feature: 血_直接胆红素, Importance: 39
+Feature: 血_间接胆红素, Importance: 39
+Feature: 血_LDH*0.9, Importance: 35
+Feature: 血_中性粒细胞(#), Importance: 35
+Feature: 血_PLT分布宽度, Importance: 34
+Feature: 血_球蛋白, Importance: 33
+Feature: 血_淋巴细胞(#), Importance: 30
+Feature: 血_钙, Importance: 28
+Feature: 血_总蛋白, Importance: 28
+Feature: 性别, Importance: 26
+Feature: 血_平均PLT体积, Importance: 25
+Feature: 血_中性粒细胞(%), Importance: 23
+Feature: 高血压(0=无，1=有), Importance: 23
+Feature: 血_淋巴细胞(%), Importance: 20
+Feature: 血_嗜碱细胞(%), Importance: 16
+Feature: 血_校正钙, Importance: 15
+Feature: 血_TBIL*0.8, Importance: 13
+Feature: 血_血红蛋白, Importance: 12
+Feature: 血_TP*0.75, Importance: 7
+Feature: 血_嗜碱细胞(#), Importance: 1
+
+进程已结束,退出代码0
+
