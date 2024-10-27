@@ -74,7 +74,6 @@ class Encoder(nn.Module):
 
     def forward(self, x):
         h0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size)
-        c0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size)
         output, (hidden, cell) = self.lstm(x, (h0, c0))
         return output, hidden, cell
 
@@ -88,7 +87,6 @@ class Attention(nn.Module):
     def forward(self, hidden, encoder_outputs):
         if n == 0:
             energy = torch.matmul(hidden.unsqueeze(0), encoder_outputs.transpose(1, 2))
-            attn_weights = self.softmax(energy)  # [batch, 1, seq_len]
             context = torch.matmul(attn_weights, encoder_outputs)  # [batch, 1, hidden]
             return context, attn_weights
         if n == 1:
@@ -97,7 +95,6 @@ class Attention(nn.Module):
             energy = energy.squeeze(1).squeeze(0)  # [4]
             energy = torch.nn.Sigmoid()(energy)
             encoder_outputs = encoder_outputs.squeeze(0)
-            c = GAM.get_f(energy, encoder_outputs)
             c = c.unsqueeze(0)
             return c, n
 
@@ -128,7 +125,6 @@ class Seq2Seq(nn.Module):
         encoder_outputs, hidden, cell = self.encoder(x)
         decoder_input = torch.zeros(x.size(0), 1, output_size)
         hidden_output = hidden
-        con1 = torch.zeros((1, 1, hidden_size))
         outputs = torch.zeros((1, 1, 2))
         for i in range(1):
             output, hidden, cell, attn_weights, con = self.decoder(decoder_input, hidden, encoder_outputs, cell)
@@ -143,7 +139,6 @@ class Seq2Seq(nn.Module):
 # 实例化模型和优化器
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 encoder = Encoder(input_size, hidden_size, nnum_layers)
-decoder = Decoder(hidden_size, output_size, num_layers)
 model = Seq2Seq(encoder, decoder)
 
 optimizer = optim.Adam(model.parameters(), lr=0.001)
@@ -272,7 +267,6 @@ for i in range(1,2):
             for i in range(sequence_len):
                 ys = torch.zeros((num_points))
                 for n in range(num_points):
-                    ys[n] = self.smooth_fun(xs[n], i)
                 squared_norm = torch.norm(ys, p=2) ** 2
                 no = torch.sqrt(squared_norm)
                 norm[i] = self.scad(no)
@@ -293,7 +287,6 @@ for i in range(1,2):
                 penalty += (lambda_ * (a * alpha - 1) * torch.abs(beta) -
                             (lambda_ ** 2) * (alpha - 1) / 2) / (a - 1)
             else:
-                penalty += lambda_ ** 2 * (a + 1) * alpha / 2
             return penalty
         def get_f(self, dot, encode_out):
             y1 = torch.zeros((1, encode_out.shape[1]))
@@ -320,7 +313,6 @@ for i in range(1,2):
         for num in range(800):
             y1 = GAM.get_f(data_input[num, :], data_encode_out[num])
             loss = criterion(y1, data_target[num].unsqueeze(0))
-            al_loss = loss+GAM.l2_norm(lower_limit, upper_limit, num_points=50)
             ave_loss[num] = loss
             if num == 799:
                 print(f"Loss: {torch.mean(ave_loss).item()}, al_loss: {al_loss.item()}")
@@ -355,7 +347,6 @@ for i in range(1,2):
         evaluation_loss = criterion(evaluation_outputs, y_test)
         _, evaluation_predicted = torch.max(evaluation_outputs, 1)  #[200]
         evaluation_accuracy = (evaluation_predicted == targeted).sum().item() / len(targeted)
-        print(f"Evaluation - Loss: {evaluation_loss:.4f}, Accuracy: {evaluation_accuracy:.4f}")
 
     # 计算混淆矩阵
     confusion(targeted, evaluation_predicted)
@@ -367,7 +358,6 @@ for i in range(1,2):
     evaluation_outputs = evaluation_outputs[:, 1]
 
     y_test = targeted.detach().numpy().reshape(200)
-    from sklearn.metrics import roc_curve, roc_auc_score, precision_recall_curve, average_precision_score
 
     y_pred_prob = evaluation_outputs
     np.save('D:\\Users\\ASUS\\Desktop\\论文\\基于N_lgG的阴阳分类\\结果\\Seq2seq+attention_predict.npy', y_pred_prob)
