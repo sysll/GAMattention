@@ -67,13 +67,11 @@ torch.manual_seed(44)
 class Encoder(nn.Module):
     def __init__(self, input_size, hidden_size, nnum_layers):
         super(Encoder, self).__init__()
-        self.hidden_size = hidden_size
         self.num_layers = nnum_layers
         self.lstm = nn.LSTM(input_size, hidden_size, nnum_layers, batch_first=True)
 
     def forward(self, x):
         h0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size)
-        c0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size)
         output, (hidden, cell) = self.lstm(x, (h0, c0))
         return output, hidden, cell
 
@@ -82,7 +80,6 @@ class Attention(nn.Module):
         super(Attention, self).__init__()
         self.hidden_size = hidden_size
         self.fc = nn.Linear(hidden_size, hidden_size)
-        self.softmax = nn.Softmax(dim=2)
 
     def forward(self, hidden, encoder_outputs):
         if n == 0:
@@ -92,9 +89,7 @@ class Attention(nn.Module):
             return context, attn_weights
         if n == 1:
             energy = torch.matmul(hidden.unsqueeze(0), encoder_outputs.transpose(1, 2))  # [1,1,4][batch, 1, seqlen]
-            energy = energy.detach()
             energy = energy.squeeze(1).squeeze(0)  # [4]
-            energy = torch.nn.Sigmoid()(energy)
             encoder_outputs = encoder_outputs.squeeze(0)
             c = GAM.get_f(energy, encoder_outputs)
             c = c.unsqueeze(0)
@@ -106,7 +101,6 @@ class Decoder(nn.Module):
         self.hidden_size = hidden_size
         self.num_layers = num_layers
         self.lstm = nn.LSTM(hidden_size+2, hidden_size, num_layers, batch_first=True)
-        self.fc = nn.Linear(hidden_size, output_size)
         self.attention = Attention(hidden_size)
 
     def forward(self, x, hidden, encoder_outputs, cell):
@@ -133,7 +127,6 @@ class Seq2Seq(nn.Module):
         for i in range(1):
             output, hidden, cell, attn_weights, con = self.decoder(decoder_input, hidden, encoder_outputs, cell)
             con1 = con
-            outputs[:, i, :] = output.squeeze(0)
 
         return outputs, attn_weights, encoder_outputs, hidden_output, con1
 
@@ -247,7 +240,6 @@ class GAM(nn.Module):
 
     def kernal(self, x, k): #x是hi.T*S是注意力成绩
         out = torch.randn((k, 1))
-        for i in range(1, k+1):
             out1 = np.exp(x/(2**i))
             out[i-1, 0] = out1
         return out
@@ -258,7 +250,6 @@ class GAM(nn.Module):
 
     def l2_norm(self, lower_limit, upper_limit, num_points=50):
         norm = torch.zeros((sequence_len))
-        xs = torch.linspace(lower_limit, upper_limit, num_points)
         for i in range(sequence_len):
             ys = torch.zeros((num_points))
             for n in range(num_points):
@@ -284,7 +275,6 @@ class GAM(nn.Module):
                         (lambda_ ** 2) * (alpha - 1) / 2) / (a - 1)
         else:
             penalty += lambda_ ** 2 * (a + 1) * alpha / 2
-        return penalty
     def get_f(self, dot, encode_out):
         y1 = torch.zeros((1, encode_out.shape[1]))
         for j in range(sequence_len):
