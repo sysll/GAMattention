@@ -73,16 +73,12 @@ class Attention(nn.Module):
             energy = torch.matmul(hidden.unsqueeze(0), encoder_outputs.transpose(1, 2))  # [1,1,4][batch, 1, seqlen]
             energy = energy.detach()
             energy = energy.squeeze(1).squeeze(0)  # [4]
-            energy = torch.nn.Sigmoid()(energy)
-            encoder_outputs = encoder_outputs.squeeze(0)
             c = GAM.get_f(energy, encoder_outputs)
             c = c.unsqueeze(0)
             return c, n
 
 class Decoder(nn.Module):
     def __init__(self, hidden_size, output_size, num_layers):
-        super(Decoder, self).__init__()
-        self.hidden_size = hidden_size
         self.num_layers = num_layers
         self.lstm = nn.LSTM(hidden_size+1, hidden_size, num_layers, batch_first=True)
         self.fc = nn.Linear(hidden_size, output_size)
@@ -99,10 +95,6 @@ class Decoder(nn.Module):
 
 class Seq2Seq(nn.Module):
     def __init__(self, encoder, decoder):
-        super(Seq2Seq, self).__init__()
-        self.encoder = encoder
-        self.decoder = decoder
-
     def forward(self, x):
         encoder_outputs, hidden, cell = self.encoder(x)
         decoder_input = torch.zeros(x.size(0), 1, output_size)
@@ -123,10 +115,6 @@ device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 encoder = Encoder(input_size, hidden_size, nnum_layers)
 decoder = Decoder(hidden_size, output_size, num_layers)
 model = Seq2Seq(encoder, decoder)
-# model = torch.load('trained model.pth')
-optimizer = optim.Adam(model.parameters(), lr=0.001)
-criterion = nn.MSELoss()
-
 train_path = "N_used for train.xlsx"
 test_path = "N_used for test.xlsx"
 
@@ -255,9 +243,6 @@ class GAM(nn.Module):
         elif torch.abs(beta) <= lambda_:
             penalty += alpha * lambda_ * torch.abs(beta)
         elif torch.abs(beta) <= a * lambda_:
-            penalty += (lambda_ * (a * alpha - 1) * torch.abs(beta) -
-                        (lambda_ ** 2) * (alpha - 1) / 2) / (a - 1)
-        else:
             penalty += lambda_ ** 2 * (a + 1) * alpha / 2
         return penalty
     def get_f(self, dot, encode_out):
