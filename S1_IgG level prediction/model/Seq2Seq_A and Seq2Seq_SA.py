@@ -198,21 +198,16 @@ class GAM(nn.Module):
     def smooth_fun(self, x, j):  #传入h.t*s
         mid = self.kernal(x, k)
         return torch.matmul(b[:, j], mid)
-
-    def l2_norm(self, lower_limit, upper_limit, num_points=50):
         norm = torch.zeros((sequence_len))
         xs = torch.linspace(lower_limit, upper_limit, num_points)
         for i in range(sequence_len):
             ys = torch.zeros((num_points))
             for n in range(num_points):
-                ys[n] = self.smooth_fun(xs[n], i)
             squared_norm = torch.norm(ys, p=2) ** 2
             no = torch.sqrt(squared_norm)
             norm[i] = self.scad(no)
         n = torch.sum(norm)
         return n
-
-
     def scad(self, beta):
         lambda_ = 0.71
         a = 1
@@ -222,14 +217,11 @@ class GAM(nn.Module):
             penalty += 0
         elif torch.abs(beta) <= lambda_:
             penalty += alpha * lambda_ * torch.abs(beta)
-        elif torch.abs(beta) <= a * lambda_:
             penalty += (lambda_ * (a * alpha - 1) * torch.abs(beta) -
                         (lambda_ ** 2) * (alpha - 1) / 2) / (a - 1)
         else:
             penalty += lambda_ ** 2 * (a + 1) * alpha / 2
         return penalty
-    def get_f(self, dot, encode_out):
-        y1 = torch.zeros((1, encode_out.shape[1]))
         for j in range(sequence_len):
             y1 = y1+self.smooth_fun(dot[j], j)*encode_out[j, :]
             "得到去拟合cj的向量"
